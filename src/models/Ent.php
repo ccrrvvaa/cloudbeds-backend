@@ -13,11 +13,11 @@ class Ent
 
     public function __construct(\DateTime $startDate, \DateTime $endDate, float $price)
     {
-        $startDate->setTime(0, 0, 0);
         $startDate->setTimezone(new \DateTimeZone('UTC'));
+        $startDate->setTime(0, 0, 0);
 
-        $endDate->setTime(0, 0, 0);
         $endDate->setTimezone(new \DateTimeZone('UTC'));
+        $endDate->setTime(0, 0, 0);
 
         if ($startDate > $endDate)
             throw new InvalidArgumentException('End Date has to be greater or equal to Start Date');

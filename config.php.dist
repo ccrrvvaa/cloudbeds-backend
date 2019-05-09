@@ -2,7 +2,7 @@
 
 return [
     'database' => [
-        'dsn' => 'mysql:host=localhost;dbname=<dbname>',
+        'dsn' => 'mysql:host=<dbhost>;dbname=<dbname>',
         'username' => '<dbuser>',
         'password' => '<dbpassword>'
     ]

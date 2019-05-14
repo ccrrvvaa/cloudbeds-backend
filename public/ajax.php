@@ -94,7 +94,7 @@ if (isset($_GET['action'])) {
                     break;
                 case 'insert':
                     $ent = extractEnt();
-                    $service->insert($ent);
+                    $service->save($ent);
 
                     $data = ['OK'];
                     break;

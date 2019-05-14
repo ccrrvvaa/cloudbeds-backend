@@ -41,13 +41,17 @@ class EntService
     }
 
     /**
-     * Inserts a new Ent, and does the needed transformation to data in order to comply all the test task
+     * Inserts/Update an Ent model, and does the needed transformation to data in order to comply all the test task
      * @param Ent $ent
      * @return bool
      */
-    public function insert(Ent $ent): bool
+    public function save(Ent $ent): bool
     {
-        $dbEnt = $this->repository->findCrossing($ent);
+        $excludeIds = [];
+        if ($ent->id > 0) // Update
+            $excludeIds[] = $ent->id;
+        
+        $dbEnt = $this->repository->findCrossing($ent, $excludeIds);
 
         while ($dbEnt) {
             if ($ent->endDate < $dbEnt->startDate) {
@@ -109,14 +113,17 @@ class EntService
             }
 
             // Get the next crossing/merge interval
-            $dbEnt = $this->repository->findCrossing($ent);
+            $dbEnt = $this->repository->findCrossing($ent, $excludeIds);
 
             // Trying to insert repeated Ent. This means that it's not necessary to continue with the insert.
-            if($ent->startDate == $dbEnt->startDate && $ent->endDate == $dbEnt->endDate && $ent->price == $dbEnt->price)
+            if($dbEnt && $ent->startDate == $dbEnt->startDate && $ent->endDate == $dbEnt->endDate && $ent->price == $dbEnt->price)
                 return true;
         }
 
-        return $this->repository->insert($ent);
+        if ($ent->id > 0)
+            return $this->repository->update($ent);
+        else
+            return $this->repository->insert($ent);
     }
 
     /**

@@ -28,5 +28,15 @@ class Ent
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->price = $price;
-    }    
+    }
+
+    public function __set(string $name, mixed $value): void
+    {
+        if (in_array($name, ['startDate', 'endDate']) && $value instanceof \DateTime) {
+            $value->setTimezone(new \DateTimeZone('UTC'));
+            $value->setTime(0, 0, 0);
+        }
+        
+        $this->$name = $value;
+    }
 }

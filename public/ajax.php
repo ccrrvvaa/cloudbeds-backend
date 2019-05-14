@@ -48,6 +48,8 @@ function extractEnt(): Ent
 {
     if (!isset($_POST['startDate']) || !isset($_POST['endDate']) || !isset($_POST['price']))
         errorBadRequest();
+    if(isset($_POST['id']) && !is_numeric($_POST['id']))
+        errorBadRequest();
 
     $dateFormat = 'Y-m-d';
     if(($startDate = \DateTime::createFromFormat($dateFormat, $_POST['startDate'])) === false)
@@ -61,6 +63,9 @@ function extractEnt(): Ent
 
     try {
         $ent = new Ent($startDate, $endDate, $price);
+
+        if(isset($_POST['id']))
+            $ent->id = intval($_POST['id']);
     } catch (InvalidArgumentException $e) {
         errorBadRequest($e->getMessage());
     }
@@ -93,6 +98,12 @@ if (isset($_GET['action'])) {
                     $data = $service->findAll();
                     break;
                 case 'insert':
+                    $ent = extractEnt();
+                    $service->save($ent);
+
+                    $data = ['OK'];
+                    break;
+                case 'update':
                     $ent = extractEnt();
                     $service->save($ent);
 

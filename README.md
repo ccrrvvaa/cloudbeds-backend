@@ -9,6 +9,4 @@
 * To run the server for testing purposes: `php -S localhost:8080 -t public/`
 
 ## Notes
-* I implemented only a part of CRUD operations. I didn't implemented `update` operation because I'd need a little more time of development
 * Haven't uploaded to a server yet
-* I'm going to finish with this two tasks these days (Decided to send this first version becasue I don't know the time limit to present this project)

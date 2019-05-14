@@ -329,6 +329,24 @@ class EntServiceTest extends TestCase
         $this->assertEquals(200.50, $updatedEnt->price);
     }
 
+    public function testEntPriceUpdated(): void
+    {
+        $newEnt = new Ent(new \DateTime('2019-01-01'), new \DateTime('2019-01-10'), 15);
+
+        $this->service->save($newEnt);
+
+        $ent = $this->service->get(1);
+        $ent->price = 200.50;
+
+        $this->service->save($ent);
+
+        $this->assertEquals(1, count($this->service->findAll()));
+
+        $updatedEnt = $this->service->get(1);
+
+        $this->assertEquals(200.50, $updatedEnt->price);
+    }
+
     public function testUpdateIntervalGreaterThanExistingOne(): void
     {
         $ent1 = new Ent(new \DateTime('2019-01-01'), new \DateTime('2019-01-05'), 15);

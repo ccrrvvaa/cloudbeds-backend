@@ -127,16 +127,6 @@ class EntService
     }
 
     /**
-     * Updates an Ent model
-     * @param Ent $ent
-     * @return bool
-     */
-    public function update(Ent $ent): bool
-    {
-        return $this->repository->update($ent);
-    }
-
-    /**
      * Deletes an specific Ent
      * @param int $id
      * @return bool

@@ -52,6 +52,7 @@ $ajaxUrl = $baseUrl . '/ajax.php';
                         <tbody></tbody>
                     </table>
 
+                    <br><br><br>
                     <div class="level-right">
                         <p class="level-item"><a id="delete-all" class="button is-warning">Delete All</a></p>
                     </div>
@@ -60,6 +61,7 @@ $ajaxUrl = $baseUrl . '/ajax.php';
                         <div class="modal-background"></div>
                         <div class="modal-content">
                             <form class="form">
+                                <input type="hidden" id="ent_id">
                                 <div class="field">
                                     <label class="label">Start Date</label>
                                     <div class="control">
@@ -79,11 +81,12 @@ $ajaxUrl = $baseUrl . '/ajax.php';
                                     </div>
                                 </div>
                                 <div class="field level-right">
+                                    <a class="button is-warning" style="margin-right: 25px;" onclick="closeForm()">Cancel</a>
                                     <a id="save" class="button is-info">Save</a>
                                 </div>
                             </form>
                         </div>
-                        <button class="modal-close is-large" aria-label="close"></button>
+                        <button class="modal-close is-large" aria-label="close" onclick="closeForm()"></button>
                     </div>
                 </div>
             </section>
@@ -116,10 +119,13 @@ $ajaxUrl = $baseUrl . '/ajax.php';
 
                                 tbody.innerHTML += `
                                     <tr ent_id = ${ent.id}>
-                                        <td>${startDate}</td>
-                                        <td>${endDate}</td>
-                                        <td>${ent.price}</td>
-                                        <td><a onclick='removeItem(this)' style="color:red"><span class="icon"><i class="fas fa-trash-alt"></i></span></a></td>
+                                        <td field='start_date'>${startDate}</td>
+                                        <td field='end_date'>${endDate}</td>
+                                        <td field='price'>${ent.price}</td>
+                                        <td>
+                                            <a onclick='removeItem(this)' style="color:red; float: right;"><span class="icon"><i class="fas fa-trash-alt"></i></span></a>
+                                            <a onclick='editItem(this)' style="color: orange; float: right; margin-right: 15px;"><span class="icon"><i class="fas fa-edit"></i></span></a>
+                                        </td>
                                     </tr>
                                 `;
                             });
@@ -134,13 +140,34 @@ $ajaxUrl = $baseUrl . '/ajax.php';
             function openForm() {
                 var modal = document.getElementById('addModal')
                 modal.classList.add('is-active')
+                modal.querySelector('input#ent_id').value = ''
                 modal.querySelector('form').reset()
             }
 
             function closeForm() {
                 var modal = document.getElementById('addModal')
                 modal.classList.remove('is-active')
+                modal.querySelector('input#ent_id').value = ''
                 modal.querySelector('form').reset()
+            }
+
+            function editItem(link) {
+                var tr = link.parentNode.parentNode
+
+                openForm();
+
+                var modal = document.getElementById('addModal')
+                var form = modal.querySelector('form')
+
+                var id = tr.getAttribute('ent_id')
+                var startDate = tr.querySelector('td[field=start_date]').textContent
+                var endDate = tr.querySelector('td[field=end_date]').textContent
+                var price = tr.querySelector('td[field=price]').textContent
+
+                form.querySelector('input#ent_id').value = id
+                form.querySelector('input#start_date').value = startDate
+                form.querySelector('input#end_date').value = endDate
+                form.querySelector('input#price').value = price
             }
 
             function removeItem(link) {
@@ -166,11 +193,17 @@ $ajaxUrl = $baseUrl . '/ajax.php';
             })
 
             saveButton.addEventListener('click', function() {
+                var id = document.getElementById('ent_id')
                 var startDate = document.getElementById('start_date')
                 var endDate = document.getElementById('end_date')
                 var price = document.getElementById('price')
+                var action = 'insert'
 
                 var formData = new FormData();
+                if (id.value != null && id.value != '') {
+                    formData.append("id", id.value)
+                    action = 'update'
+                }
                 formData.append("startDate", startDate.value)
                 formData.append("endDate", endDate.value)
                 formData.append("price", price.value)
@@ -182,7 +215,7 @@ $ajaxUrl = $baseUrl . '/ajax.php';
                     }
                 }
 
-                xmlhttp.open("POST", "//<?php echo $ajaxUrl ?>?action=insert");
+                xmlhttp.open("POST", `//<?php echo $ajaxUrl ?>?action=${action}`);
                 xmlhttp.send(formData);
             })
 

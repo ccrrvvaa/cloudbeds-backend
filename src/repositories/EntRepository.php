@@ -55,20 +55,29 @@ class EntRepository
     /**
      * Gets a list of Ents which cross intervals with parameters or has a possible merge intervals
      * @param Ent $newEnt
+     * @param array $excludeIds
      * @return Ent|null
      */
-    public function findCrossing(Ent $newEnt)
+    public function findCrossing(Ent $newEnt, array $excludeIds = [])
     {
-        $stmt = $this->connection->prepare(
-            "SELECT * FROM ent WHERE (? >= date_start AND ? <= date_end)
-                OR (? < date_start AND ? = price AND DATEDIFF(date_start, ?) = 1)
-                OR (? > date_end AND ? = price AND DATEDIFF(?, date_end) = 1)
-             ORDER BY date_start"
-        );
+        $query = "SELECT * FROM ent WHERE ((? >= date_start AND ? <= date_end)
+                    OR (? < date_start AND ? = price AND DATEDIFF(date_start, ?) = 1)
+                    OR (? > date_end AND ? = price AND DATEDIFF(?, date_end) = 1))";
+        
+        if(count($excludeIds) > 0)
+            $query .= " AND id NOT IN (?) ";
 
-        $stmt->execute([$newEnt->endDate->format('Y-m-d'), $newEnt->startDate->format('Y-m-d'),
-                        $newEnt->endDate->format('Y-m-d'), $newEnt->price, $newEnt->endDate->format('Y-m-d'),
-                        $newEnt->startDate->format('Y-m-d'), $newEnt->price, $newEnt->startDate->format('Y-m-d')]);
+        $query .= " ORDER BY date_start";
+
+        $params = [$newEnt->endDate->format('Y-m-d'), $newEnt->startDate->format('Y-m-d'),
+                    $newEnt->endDate->format('Y-m-d'), $newEnt->price, $newEnt->endDate->format('Y-m-d'),
+                    $newEnt->startDate->format('Y-m-d'), $newEnt->price, $newEnt->startDate->format('Y-m-d')];
+        
+        if(count($excludeIds) > 0)
+            $params[] = implode(',', $excludeIds);
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->execute($params);
 
         if ($stmt->rowCount() == 0) return null;
 

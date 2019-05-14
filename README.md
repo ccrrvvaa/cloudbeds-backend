@@ -9,4 +9,4 @@
 * To run the server for testing purposes: `php -S localhost:8080 -t public/`
 
 ## Notes
-* Haven't uploaded to a server yet
+* Test server uploaded to http://cloudbeds.galivar.com/

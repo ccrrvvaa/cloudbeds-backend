@@ -45,11 +45,15 @@ class EntRepository
 
     /**
      * @param int $id
-     * @return Ent
+     * @return Ent|null
      */
-    public function get(int $id): Ent
+    public function get(int $id)
     {
-        return new Ent(new \DateTime('now'), new \DateTime('tomorrow'), 1);
+        $query = $this->connection->prepare('SELECT * FROM ent WHERE id = ?');
+        $query->execute([$id]);
+        $row = $query->fetch(\PDO::FETCH_ASSOC);
+
+        return $row === false ? null : $this->extractEntFromRow($row);
     }
 
     /**

@@ -35,7 +35,12 @@ class EntService
         return $this->repository->findAll();
     }
 
-    public function get(int $id): Ent
+    /**
+     * Finds a model Ent
+     * @param int $id
+     * @return Ent|null
+     */
+    public function get(int $id)
     {
         return $this->repository->get($id);
     }

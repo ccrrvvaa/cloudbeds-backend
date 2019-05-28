@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use InvalidArgumentException;
 use App\repositories\EntRepository;
 use App\services\EntService;
 use App\models\Ent;
@@ -17,6 +16,16 @@ function errorMethodNotAllowed()
 {
     http_response_code(405);
     echo json_encode(['message' => 'Action not found']);
+    exit(0);
+}
+
+/**
+ * Handles error for not found Ent
+ */
+function errorNotFound()
+{
+    http_response_code(404);
+    echo json_encode(['message' => 'Ent not found']);
     exit(0);
 }
 
@@ -66,7 +75,7 @@ function extractEnt(): Ent
 
         if(isset($_POST['id']))
             $ent->id = intval($_POST['id']);
-    } catch (InvalidArgumentException $e) {
+    } catch (\InvalidArgumentException $e) {
         errorBadRequest($e->getMessage());
     }
 
@@ -78,7 +87,7 @@ header('Content-Type: application/json');
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
 
-    if (in_array($action, ['list', 'insert', 'update', 'delete', 'clear'])) {
+    if (in_array($action, ['list', 'get', 'insert', 'update', 'delete', 'clear'])) {
 
         $config = require '../config.php';
 
@@ -96,6 +105,15 @@ if (isset($_GET['action'])) {
             switch($action) {
                 case 'list':
                     $data = $service->findAll();
+                    break;
+                case 'get':
+                    if (!(isset($_GET['id']) && is_numeric($_GET['id'])))
+                        errorBadRequest();
+
+                    $data = $service->get(intval($_GET['id']));
+
+                    if ($data === null)  errorNotFound();
+                    
                     break;
                 case 'insert':
                     $ent = extractEnt();
